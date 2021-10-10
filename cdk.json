@@ -1,0 +1,3 @@
+{
+  "app": "npx ts-node bin/aws-service-control-policies-deployment.ts"
+}

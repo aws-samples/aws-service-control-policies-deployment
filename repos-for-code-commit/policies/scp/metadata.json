@@ -1,0 +1,28 @@
+{
+  "ou-ids": [
+    {
+      "id": "ou-abcd-e3fghj1k",
+      "dir_name": "production",
+      "scps": [
+        "allowed.json",
+        "restricted.json"
+      ]
+    },
+    {
+      "id": "ou-abcd-vsp4rv23",
+      "dir_name": "sandbox",
+      "scps": [
+        "allowed.json",
+        "restricted.json"
+      ]
+    },
+    {
+      "id": "ou-abcd-un0t6khx",
+      "dir_name": "tools",
+      "scps": [
+        "allowed.json",
+        "restricted.json"
+      ]
+    }
+  ]
+}
