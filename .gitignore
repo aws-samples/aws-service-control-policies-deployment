@@ -11,3 +11,4 @@ test/__snapshots__/
 
 # IDE
 .idea/
+.DS_Store
