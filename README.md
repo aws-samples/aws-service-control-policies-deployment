@@ -167,13 +167,18 @@ Feature: Verify IAM actions
   npm -v
   ```
 ### Let's begin
+- Install `jq` using relevant package manager for Windows/Linux/macOS.
 - Clone this repository and install dependencies
   ```shell
-  brew install jq
-  npm install -g -f aws-cdk@1.127.0
+  npm install -g -f aws-cdk@1.x
   cd $HOME && mkdir -p environment && cd environment
   git clone https://github.com/aws-samples/aws-service-control-policies-deployment
   cd $HOME/environment/aws-service-control-policies-deployment
+  ```
+- Export the AWS builder account ID for your infrastructure
+  ```shell
+  export BUILDER_AWS_ACCOUNT_ID=123456789012
+  echo $BUILDER_AWS_ACCOUNT_ID
   ```
 - Install project dependencies and build the project
   ```shell
@@ -183,8 +188,6 @@ Feature: Verify IAM actions
   ```
 - Export the AWS credentials for the org management account and execute the below commands
   ```shell
-  export BUILDER_AWS_ACCOUNT_ID=<PROVIDE THE BUILDER AWS ACCOUNT ID>
-  echo $BUILDER_AWS_ACCOUNT_ID
   cdk deploy SetupOrgManagementStack
   export ORG_MANAGEMENT_ASSUMABLE_ROLE_ARN=$(aws cloudformation describe-stacks --stack-name SetupOrgManagementStack --query 'Stacks[*].Outputs[?ExportName==`orgManagementAssumableRoleArn`].OutputValue' --output text)
   echo $ORG_MANAGEMENT_ASSUMABLE_ROLE_ARN
