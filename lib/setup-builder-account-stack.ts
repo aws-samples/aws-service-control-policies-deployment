@@ -1,59 +1,59 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 
-import * as cdk from '@aws-cdk/core';
-import {RemovalPolicy} from '@aws-cdk/core';
-import {StackConstants} from "./util/constants";
-import {BlockPublicAccess, BucketEncryption} from "@aws-cdk/aws-s3";
-import {Effect, ManagedPolicy, ServicePrincipal} from "@aws-cdk/aws-iam";
-import * as path from "path";
-import codeCommit = require('@aws-cdk/aws-codecommit');
-import s3 = require("@aws-cdk/aws-s3");
-import iam = require("@aws-cdk/aws-iam");
-import lambda = require('@aws-cdk/aws-lambda');
-import codePipeline = require("@aws-cdk/aws-codepipeline");
-import codePipelineActions = require("@aws-cdk/aws-codepipeline-actions");
+import {CfnOutput, Duration, RemovalPolicy, Stack, StackProps} from 'aws-cdk-lib';
+import {StackConstants} from './util/constants';
+import * as  s3 from 'aws-cdk-lib/aws-s3';
+import {BlockPublicAccess, BucketEncryption} from 'aws-cdk-lib/aws-s3';
+import * as  iam from 'aws-cdk-lib/aws-iam';
+import {Effect, ManagedPolicy, ServicePrincipal} from 'aws-cdk-lib/aws-iam';
+import * as path from 'path';
+import * as codeCommit from 'aws-cdk-lib/aws-codecommit'
+import * as  lambda from 'aws-cdk-lib/aws-lambda'
+import * as  codePipeline from 'aws-cdk-lib/aws-codepipeline'
+import * as  codePipelineActions from 'aws-cdk-lib/aws-codepipeline-actions'
+import {Construct} from 'constructs';
 
-export class SetupBuilderAccountStack extends cdk.Stack {
-    constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
+export class SetupBuilderAccountStack extends Stack {
+    constructor(scope: Construct, id: string, props?: StackProps) {
         super(scope, id, props);
 
         // CodeCommit repository for storing the policies
-        const scpRepo = new codeCommit.Repository(this, "scpRepo", {
+        const scpRepo = new codeCommit.Repository(this, 'scpRepo', {
             repositoryName: StackConstants.scpRepoName,
             description: StackConstants.scpRepoDesc
         });
 
         // S3 bucket for storing the policies
-        const scpBucket = new s3.Bucket(this, "scpBucket", {
+        const scpBucket = new s3.Bucket(this, 'scpBucket', {
             encryption: BucketEncryption.S3_MANAGED,
             blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
             removalPolicy: RemovalPolicy.RETAIN
         });
 
         // S3 bucket for storing the code pipeline artifacts
-        const scpArtifactsBucket = new s3.Bucket(this, "scpArtifactsBucket", {
+        const scpArtifactsBucket = new s3.Bucket(this, 'scpArtifactsBucket', {
             encryption: BucketEncryption.S3_MANAGED,
             blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
             removalPolicy: RemovalPolicy.RETAIN
         });
 
         // IAM role to create or attach SCP using custom lambda function
-        const customLambdaServiceRole = new iam.Role(this, "customLambdaServiceRole", {
+        const customLambdaServiceRole = new iam.Role(this, 'customLambdaServiceRole', {
             assumedBy: new ServicePrincipal('lambda.amazonaws.com')
         });
 
         const inlinePolicyForLambda = new iam.PolicyStatement({
             effect: Effect.ALLOW,
             actions: [
-                "sts:AssumeRole",
-                "s3:List*",
-                "s3:Get*",
-                "codepipeline:GetJobDetails",
-                "codepipeline:PutJobSuccessResult",
-                "codepipeline:PutJobFailureResult"
+                'sts:AssumeRole',
+                's3:List*',
+                's3:Get*',
+                'codepipeline:GetJobDetails',
+                'codepipeline:PutJobSuccessResult',
+                'codepipeline:PutJobFailureResult'
             ],
-            resources: ["*"]
+            resources: ['*']
         });
 
         customLambdaServiceRole.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'))
@@ -64,7 +64,7 @@ export class SetupBuilderAccountStack extends cdk.Stack {
             code: lambda.Code.fromAsset(
                 path.join(__dirname, 'custom_resources'),
                 {
-                    exclude: ["**", "!create_and_attach_scp.py"]
+                    exclude: ['**', '!create_and_attach_scp.py']
                 }),
             runtime: lambda.Runtime.PYTHON_3_8,
             handler: 'create_and_attach_scp.handler',
@@ -73,32 +73,32 @@ export class SetupBuilderAccountStack extends cdk.Stack {
                 'ORG_ROLE': String(process.env.ORG_MANAGEMENT_ASSUMABLE_ROLE_ARN)
             },
             role: customLambdaServiceRole,
-            description: "Custom resource to create and attach the SCPs",
+            description: 'Custom resource to create and attach the SCPs',
             memorySize: 128,
-            timeout: cdk.Duration.seconds(60)
+            timeout: Duration.seconds(60)
         });
 
         // Code pipeline role to create and attach the SCPs
-        const codePipelineServiceRole = new iam.Role(this, "codePipelineServiceRole", {
+        const codePipelineServiceRole = new iam.Role(this, 'codePipelineServiceRole', {
             assumedBy: new ServicePrincipal('codepipeline.amazonaws.com')
         });
 
         const inlinePolicyForCodePipeline = new iam.PolicyStatement({
             effect: Effect.ALLOW,
             actions: [
-                "sts:AssumeRole",
-                "codecommit:Get*",
-                "codecommit:List*",
-                "codecommit:GitPull",
-                "codecommit:UploadArchive",
-                "lambda:Get*",
-                "lambda:List*",
-                "lambda:InvokeFunction",
-                "s3:Get*",
-                "s3:List*",
-                "s3:PutObject"
+                'sts:AssumeRole',
+                'codecommit:Get*',
+                'codecommit:List*',
+                'codecommit:GitPull',
+                'codecommit:UploadArchive',
+                'lambda:Get*',
+                'lambda:List*',
+                'lambda:InvokeFunction',
+                's3:Get*',
+                's3:List*',
+                's3:PutObject'
             ],
-            resources: ["*"]
+            resources: ['*']
         });
 
         codePipelineServiceRole.addToPolicy(inlinePolicyForCodePipeline);
@@ -106,7 +106,7 @@ export class SetupBuilderAccountStack extends cdk.Stack {
         // Code pipeline to create and attach the SCPs
         const scpSourceOutput = new codePipeline.Artifact();
 
-        const pipeline = new codePipeline.Pipeline(this, "scpPipeline", {
+        new codePipeline.Pipeline(this, 'scpPipeline', {
             role: codePipelineServiceRole,
             artifactBucket: scpArtifactsBucket,
             stages: [
@@ -136,7 +136,7 @@ export class SetupBuilderAccountStack extends cdk.Stack {
                     stageName: 'CreateSCPs',
                     actions: [
                         new codePipelineActions.LambdaInvokeAction({
-                            actionName: "createSCPs",
+                            actionName: 'createSCPs',
                             lambda: createAttachSCPs,
                             userParameters: {
                                 BucketName: scpBucket.bucketName
@@ -148,7 +148,7 @@ export class SetupBuilderAccountStack extends cdk.Stack {
                     stageName: 'AttachSCPs',
                     actions: [
                         new codePipelineActions.LambdaInvokeAction({
-                            actionName: "attachSCPs",
+                            actionName: 'attachSCPs',
                             lambda: createAttachSCPs,
                             userParameters: {
                                 BucketName: scpBucket.bucketName
@@ -160,7 +160,7 @@ export class SetupBuilderAccountStack extends cdk.Stack {
         });
 
         // CodeCommit repository to be used
-        new cdk.CfnOutput(this, 'scpRepoCloneUrlGrc', {
+        new CfnOutput(this, 'scpRepoCloneUrlGrc', {
             value: scpRepo.repositoryCloneUrlGrc,
             exportName: 'scpRepoCloneUrlGrc'
         });

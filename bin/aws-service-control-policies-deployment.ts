@@ -4,12 +4,12 @@
 // SPDX-License-Identifier: MIT-0
 
 import 'source-map-support/register';
-import * as cdk from '@aws-cdk/core';
+import {App} from 'aws-cdk-lib';
 import {SetupOrgManagementStack} from '../lib/setup-org-management-stack';
-import {SetupMemberAccountStack} from "../lib/setup-member-account-stack";
-import {SetupBuilderAccountStack} from "../lib/setup-builder-account-stack";
+import {SetupMemberAccountStack} from '../lib/setup-member-account-stack';
+import {SetupBuilderAccountStack} from '../lib/setup-builder-account-stack';
 
-const app = new cdk.App();
+const app = new App();
 new SetupOrgManagementStack(app, 'SetupOrgManagementStack', {
     description: 'Setup org management account resources for SCP deployment'
 });
