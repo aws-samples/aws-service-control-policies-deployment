@@ -1,5 +1,11 @@
 # Service Control Policies Deployment
 
+# Archive Notice
+
+This project is being archived as of Jan 2024. The application has been tested using `CDK 2.122.0` and `NodeJS 18`.
+
+---
+
 #### Table of Contents
 
 * [Outcome](#outcome)
@@ -166,7 +172,7 @@ Feature: Verify IAM actions
 
 ### Pre-requisites
 
-- Ensure the AWS CLI v2 is configured and AWS_DEFAULT_REGION is set
+- Ensure the AWS CLI v2 is configured and `AWS_DEFAULT_REGION` is set
   ```shell
   export AWS_DEFAULT_REGION=$(aws configure get region)
   echo $AWS_DEFAULT_REGION
@@ -183,7 +189,7 @@ Feature: Verify IAM actions
 
 - Clone this repository and install dependencies
   ```shell
-  npm install -g -f aws-cdk@2.26
+  npm install -g -f aws-cdk@2.122.0
   cd $HOME && mkdir -p environment && cd environment
   git clone https://github.com/aws-samples/aws-service-control-policies-deployment
   cd $HOME/environment/aws-service-control-policies-deployment
